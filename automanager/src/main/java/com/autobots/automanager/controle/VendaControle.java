@@ -15,7 +15,7 @@ import com.autobots.automanager.modelos.SelecionadorVenda;
 import com.autobots.automanager.repositorios.RepositorioVenda;
 
 @RestController
-@RequestMapping("/Venda")
+@RequestMapping("/venda")
 public class VendaControle {
 	@Autowired
 	private RepositorioVenda repoVenda;

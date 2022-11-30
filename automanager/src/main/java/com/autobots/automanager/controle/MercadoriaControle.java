@@ -7,17 +7,29 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
+import com.autobots.automanager.entitades.Empresa;
 import com.autobots.automanager.entitades.Mercadoria;
+import com.autobots.automanager.entitades.Usuario;
 import com.autobots.automanager.modelos.SelecionadorMercadoria;
+import com.autobots.automanager.modelos.SelecionadorUsuario;
+import com.autobots.automanager.repositorios.RepositorioEmpresa;
 import com.autobots.automanager.repositorios.RepositorioMercadoria;
+import com.autobots.automanager.repositorios.RepositorioUsuario;
 
 @RestController
 @RequestMapping("/mercadoria")
 public class MercadoriaControle {
+	@Autowired
+	private RepositorioEmpresa repoEmpresa;
+	@Autowired
+	private SelecionadorUsuario selecionadorUsu;
+	@Autowired
+	private RepositorioUsuario repoUsuario;
 	@Autowired
 	private RepositorioMercadoria repoMercadoria;
 	@Autowired
@@ -44,6 +56,31 @@ public class MercadoriaControle {
 		}else {
 			status = HttpStatus.FOUND;
 			return new ResponseEntity<>(selecionado, status);
+		}
+	}
+	
+	@PostMapping("/cadastro/{idUsuario}")
+	public ResponseEntity<?> cadastroMercadoria(
+		@RequestBody Mercadoria cadastro,
+		@PathVariable Long idUsuario
+	){
+		List<Usuario> usuarios = repoUsuario.findAll();
+		Usuario select = selecionadorUsu.select(usuarios, idUsuario);
+		if (select != null) {
+			for(Empresa empresas : repoEmpresa.findAll()) {
+				for(Usuario usuario : empresas.getUsuarios()) {
+					if(usuario.getId().equals(select.getId())) {
+						empresas.getMercadorias().add(cadastro);
+					}
+				}
+			}
+			select.getMercadorias().add(cadastro);
+		      return new ResponseEntity<>(
+				"Mercadoria Cadastrada com sucesso",
+				HttpStatus.CREATED
+			);
+		}else {
+			return new ResponseEntity<>("Usuário não encontrado", HttpStatus.NOT_FOUND);
 		}
 	}
 }
