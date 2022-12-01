@@ -47,4 +47,6 @@ public class Empresa {
 	
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private Set<Venda> vendas = new HashSet<>();
+	
+	
 }

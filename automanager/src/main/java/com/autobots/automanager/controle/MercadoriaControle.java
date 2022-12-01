@@ -64,18 +64,25 @@ public class MercadoriaControle {
 		@RequestBody Mercadoria cadastro,
 		@PathVariable Long idUsuario
 	){
+		
+		Long idTeste = repoMercadoria.save(cadastro).getId();
+		Mercadoria mercadoria = repoMercadoria.findById(idTeste).orElse(null);
+		
 		List<Usuario> usuarios = repoUsuario.findAll();
 		Usuario select = selecionadorUsu.select(usuarios, idUsuario);
 		if (select != null) {
 			for(Empresa empresas : repoEmpresa.findAll()) {
 				for(Usuario usuario : empresas.getUsuarios()) {
-					if(usuario.getId().equals(select.getId())) {
-						empresas.getMercadorias().add(cadastro);
+					if(usuario.getId().equals(idUsuario)) {
+						empresas.getMercadorias().add(mercadoria);
+						repoEmpresa.save(empresas);
+						break;
 					}
 				}
 			}
-			select.getMercadorias().add(cadastro);
-		      return new ResponseEntity<>(
+			select.getMercadorias().add(mercadoria);
+			repoUsuario.save(select);
+			return new ResponseEntity<>(
 				"Mercadoria Cadastrada com sucesso",
 				HttpStatus.CREATED
 			);
