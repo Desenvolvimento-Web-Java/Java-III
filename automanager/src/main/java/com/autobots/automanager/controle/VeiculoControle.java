@@ -7,18 +7,27 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.autobots.automanager.entitades.Usuario;
 import com.autobots.automanager.entitades.Veiculo;
+import com.autobots.automanager.modelos.SelecionadorUsuario;
 import com.autobots.automanager.modelos.SelecionadorVeiculo;
+import com.autobots.automanager.repositorios.RepositorioUsuario;
 import com.autobots.automanager.repositorios.RepositorioVeiculo;
 
 @RestController
 @RequestMapping("/veiculo")
 public class VeiculoControle {
 	@Autowired
+	private RepositorioUsuario repoUsuario;
+	@Autowired
 	private RepositorioVeiculo repoVeiculo;
+	@Autowired
+	private SelecionadorUsuario selecionadorUsu;
 	@Autowired
 	private SelecionadorVeiculo selecionador;
 	@GetMapping ("/todos")
@@ -43,6 +52,23 @@ public class VeiculoControle {
 		}else {
 			status = HttpStatus.FOUND;
 			return new ResponseEntity<>(selecionado, status);
+		}
+	}
+	
+	@PostMapping ("/cadastro/{idUsuario}")
+	public ResponseEntity<?> cadastroVeiculo(
+		@PathVariable Long idUsuario,
+		@RequestBody Veiculo body
+		){
+		List<Usuario> todos = repoUsuario.findAll();
+		Usuario selecionados = selecionadorUsu.select(todos, idUsuario);
+		if(selecionados != null) {
+			selecionados.getVeiculos().add(body);
+			body.setProprietario(selecionados);
+			repoVeiculo.save(body);
+			return new ResponseEntity<>("Veiculo cadastrado no usuario: " + selecionados.getNome(), HttpStatus.ACCEPTED);
+		}else {
+			return new ResponseEntity<>("Usuario não encontrado", HttpStatus.NOT_FOUND);
 		}
 	}
 }

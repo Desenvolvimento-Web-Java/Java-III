@@ -6,4 +6,5 @@ import com.autobots.automanager.entitades.Veiculo;
 
 public interface RepositorioVeiculo extends JpaRepository<Veiculo, Long>{
 
+
 }
