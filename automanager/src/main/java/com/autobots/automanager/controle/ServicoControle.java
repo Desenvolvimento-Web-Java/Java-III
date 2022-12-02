@@ -7,11 +7,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.autobots.automanager.entitades.Empresa;
 import com.autobots.automanager.entitades.Servico;
+import com.autobots.automanager.modelos.SelecionadorEmpresa;
 import com.autobots.automanager.modelos.SelecionadorServico;
+import com.autobots.automanager.repositorios.RepositorioEmpresa;
 import com.autobots.automanager.repositorios.RepositorioServico;
 
 @RestController
@@ -19,6 +24,10 @@ import com.autobots.automanager.repositorios.RepositorioServico;
 public class ServicoControle {
 	@Autowired
 	private RepositorioServico repoServico;
+	@Autowired
+	private SelecionadorEmpresa selecionadorEmpresa;
+	@Autowired
+	private RepositorioEmpresa repoEmpresa;
 	@Autowired
 	private SelecionadorServico selecionador;
 	@GetMapping ("/todos")
@@ -44,5 +53,18 @@ public class ServicoControle {
 			status = HttpStatus.FOUND;
 			return new ResponseEntity<>(selecionado, status);
 		}
+	}
+	@PostMapping ("/cadastroServico/{empresa}")
+	public ResponseEntity<?> cadastrarServico (@PathVariable Long empresa, @RequestBody Servico serv){
+		List<Empresa> empresas = repoEmpresa.findAll();
+		Empresa selecionado = selecionadorEmpresa.select(empresas, empresa);
+		if (selecionado == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}else {
+			selecionado.getServicos().add(serv);
+			repoEmpresa.save(selecionado);
+			return new ResponseEntity<>(HttpStatus.CREATED);
+		}
+		
 	}
 }
