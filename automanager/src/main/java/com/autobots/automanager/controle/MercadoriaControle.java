@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -58,6 +59,28 @@ public class MercadoriaControle {
 			return new ResponseEntity<>(selecionado, status);
 		}
 	}
+	
+	@PutMapping ("/atualizar/{id}")
+	public ResponseEntity<?> atualizaMercadoria (@PathVariable Long id, @RequestBody Mercadoria atualizador){
+		Mercadoria selecionado = selecionador.select(repoMercadoria.findAll(), id);
+		HttpStatus status = HttpStatus.I_AM_A_TEAPOT;
+		if (selecionado == null) {
+			status = HttpStatus.NOT_FOUND;
+			return new ResponseEntity<>(status);
+		}else {
+			selecionado.setNome(atualizador.getNome());
+			selecionado.setValidade(atualizador.getValidade());
+			selecionado.setFabricao(atualizador.getFabricao());
+			selecionado.setCadastro(atualizador.getCadastro());
+			selecionado.setQuantidade(atualizador.getQuantidade());
+			selecionado.setValor(atualizador.getValor());
+			selecionado.setDescricao(atualizador.getDescricao());
+			repoMercadoria.save(selecionado);
+			status = HttpStatus.FOUND;
+			return new ResponseEntity<>(selecionado, status);
+		}
+			
+}
 	
 	@PostMapping("/cadastro/{idUsuario}")
 	public ResponseEntity<?> cadastroMercadoria(

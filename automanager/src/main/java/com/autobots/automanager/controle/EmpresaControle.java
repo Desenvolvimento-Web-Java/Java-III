@@ -9,13 +9,17 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.autobots.automanager.entitades.Empresa;
 import com.autobots.automanager.entitades.Mercadoria;
+import com.autobots.automanager.entitades.Usuario;
+import com.autobots.automanager.modelos.EmpresaAtualizador;
 import com.autobots.automanager.modelos.SelecionadorEmpresa;
+import com.autobots.automanager.modelos.UsuarioAtualizador;
 import com.autobots.automanager.repositorios.RepositorioEmpresa;
 
 @RestController
@@ -49,6 +53,23 @@ public class EmpresaControle {
 			return new ResponseEntity<>(selecionado, status);
 		}
 	}
+	
+	@PutMapping ("/atualizar/{id}")
+	public ResponseEntity<?> atualizaEmpresa (@PathVariable Long id, @RequestBody Empresa atualizador){
+		Empresa selecionado = selecionador.select(repoEmpresa.findAll(), id);
+		HttpStatus status = HttpStatus.I_AM_A_TEAPOT;
+		if (selecionado == null) {
+			status = HttpStatus.NOT_FOUND;
+			return new ResponseEntity<>(status);
+		}else {
+			EmpresaAtualizador att = new EmpresaAtualizador();								
+			att.atualizar(selecionado, atualizador);
+			repoEmpresa.save(selecionado);
+			status = HttpStatus.FOUND;
+			return new ResponseEntity<>(selecionado, status);
+		}
+			
+}
 	
 	@PostMapping("/cadastro")
 	public ResponseEntity<?> cadastrarEmpresa(@RequestBody Empresa empresa) {

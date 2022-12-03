@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -54,6 +55,23 @@ public class VeiculoControle {
 			return new ResponseEntity<>(selecionado, status);
 		}
 	}
+	
+	@PutMapping ("/atualizar/{id}")
+	public ResponseEntity<?> atualizaVeiculo (@PathVariable Long id, @RequestBody Veiculo atualizador){
+		Veiculo selecionado = selecionador.select(repoVeiculo.findAll(), id);
+		HttpStatus status = HttpStatus.I_AM_A_TEAPOT;
+		if (selecionado == null) {
+			status = HttpStatus.NOT_FOUND;
+			return new ResponseEntity<>(status);
+		}else {
+			selecionado.setModelo(atualizador.getModelo());
+			selecionado.setPlaca(atualizador.getPlaca());
+			repoVeiculo.save(selecionado);
+			status = HttpStatus.FOUND;
+			return new ResponseEntity<>(selecionado, status);
+		}
+			
+}
 	
 	@PostMapping ("/cadastro/{idUsuario}")
 	public ResponseEntity<?> cadastroVeiculo(
